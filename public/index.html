@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,">
+	<link rel="stylesheet" href="css/main.css">
+	<title>Mothman MMO</title>
+</head>
+<body>
+
+<h1>Mothman MMO</h1>
+<div>Current players: <span id="players"></span></div>
+<div>Round time: <span id="time"></span></div>
+<div></div>
+
+<div>
+    <div id="intent-form">
+        <p>Declare your intent:</p>
+        <button id="intent-human">Human</button>
+        <button id="intent-mothman">Mothman</button>
+    </div>
+    <div id="intent-selection" style="display:none;">
+        <p>You are a <span id="intent"></span></p>
+    </div>
+</div>
+
+<div id="waiting" style="display:none;">
+    <p>Waiting for other players...</p>
+    <div class="lds-ripple"><div></div><div></div></div>
+</div>
+
+<div id="result" style="display:none;">
+    <p></p>
+</div>
+
+<p id="error"></p>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script type="text/javascript">
+    var audio = new Audio('audio/music2.mp3');
+    socket = io();
+
+    socket.on("players", function(p) {
+        document.getElementById("players").textContent = Number(p);
+    });
+    socket.on("time", function(t) {
+        document.getElementById("time").textContent = Number(t);
+    });
+    socket.on("error", function(error) {
+        document.getElementById("error").textContent = error;
+    });
+    socket.on("result", function(r) {
+        document.querySelector("#result p").textContent = r;
+        document.getElementById("result").style = "";
+        document.getElementById("waiting").style = "display:none;";
+    });
+    socket.on("reset", function() {
+        /*
+        document.getElementById("intent-form").style = "";
+        document.getElementById("intent-selection").style = "display:none";
+        document.getElementById("intent").textContent = "";
+        document.getElementById("waiting").style = "display:none";
+        */
+    });
+
+    document.getElementById("intent-human").addEventListener("click", function(e) {
+        e.preventDefault();
+        socket.emit("registration", "human");
+
+        document.getElementById("intent-form").style = "display:none";
+        document.getElementById("intent-selection").style = "";
+        document.getElementById("intent").textContent = "human";
+        document.getElementById("waiting").style = "";
+        audio.play();
+    });
+
+    document.getElementById("intent-mothman").addEventListener("click", function(e) {
+        e.preventDefault();
+        socket.emit("registration", "mothman");
+
+        document.getElementById("intent-form").style = "display:none";
+        document.getElementById("intent-selection").style = "";
+        document.getElementById("intent").textContent = "mothman";
+        document.getElementById("waiting").style = "";
+        audio.play();
+    });
+    
+</script>
+</body>
+</html>

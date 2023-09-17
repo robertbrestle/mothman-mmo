@@ -1,0 +1,19 @@
+{
+  "name": "mothman-mmo",
+  "version": "1.0.0",
+  "description": "A Mothman MMO that supports up to 512 players",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mothman",
+    "mmo"
+  ],
+  "author": "robertbrestle",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}
