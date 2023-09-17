@@ -10,8 +10,8 @@
 <body>
 
 <h1>Mothman MMO</h1>
-<div>Current players: <span id="players"></span></div>
-<div>Round time: <span id="time"></span></div>
+<div>Current players: <span id="players">0</span></div>
+<div>Round time: <span id="time">waiting</span></div>
 <div></div>
 
 <div>
@@ -32,6 +32,7 @@
 
 <div id="result" style="display:none;">
     <p></p>
+    <div>The next round will begin in <span id="resetTime"></span> seconds.</div>
 </div>
 
 <p id="error"></p>
@@ -43,10 +44,13 @@
     socket = io();
 
     socket.on("players", function(p) {
-        document.getElementById("players").textContent = Number(p);
+        document.getElementById("players").textContent = p;
     });
     socket.on("time", function(t) {
-        document.getElementById("time").textContent = Number(t);
+        document.getElementById("time").textContent = t;
+    });
+    socket.on("resetTime", function(t) {
+        document.getElementById("resetTime").textContent = t;
     });
     socket.on("error", function(error) {
         document.getElementById("error").textContent = error;
@@ -57,35 +61,32 @@
         document.getElementById("waiting").style = "display:none;";
     });
     socket.on("reset", function() {
-        /*
         document.getElementById("intent-form").style = "";
         document.getElementById("intent-selection").style = "display:none";
         document.getElementById("intent").textContent = "";
         document.getElementById("waiting").style = "display:none";
-        */
+        document.getElementById("result").style = "display:none";
     });
 
     document.getElementById("intent-human").addEventListener("click", function(e) {
         e.preventDefault();
         socket.emit("registration", "human");
-
-        document.getElementById("intent-form").style = "display:none";
-        document.getElementById("intent-selection").style = "";
-        document.getElementById("intent").textContent = "human";
-        document.getElementById("waiting").style = "";
-        audio.play();
+        setIntent("human");
     });
 
     document.getElementById("intent-mothman").addEventListener("click", function(e) {
         e.preventDefault();
         socket.emit("registration", "mothman");
+        setIntent("mothman");
+    });
 
+    function setIntent(intent) {
         document.getElementById("intent-form").style = "display:none";
         document.getElementById("intent-selection").style = "";
-        document.getElementById("intent").textContent = "mothman";
+        document.getElementById("intent").textContent = intent;
         document.getElementById("waiting").style = "";
         audio.play();
-    });
+    }
     
 </script>
 </body>

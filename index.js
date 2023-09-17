@@ -12,23 +12,25 @@ app.get('/', (req, res) => {
 io.on("connection", (socket) => {
 
   console.log(socket.id + " connected");
-  socket.emit("players", Object.keys(game.players).length); // send to player
+  socket.emit("players", game.getPlayerCount()); // send to player
   
   socket.on("registration", (intent) => {
-    // attempt to start the game
-    game.startGameLoop(io);
     // register player
     if (game.registration(socket.id, intent)) {
-      console.log(game.players);
-      socket.emit("players", Object.keys(game.players).length); // send to players
-      socket.broadcast.emit("players", Object.keys(game.players).length); // send to room
+      // attempt to start the game
+      game.startGameLoop(io);
+      // send updates to clients
+      socket.emit("players", game.getPlayerCount()); // send to player
+      socket.broadcast.emit("players", game.getPlayerCount()); // send to room
+      socket.emit("time", Object.keys(game.roundTime).length); // send to players
+      socket.broadcast.emit("time", Object.keys(game.roundTime).length); // send to room
     }
   });
 
   socket.on("disconnect", () => {
     console.log(socket.id + " disconnected");
-    delete game.players[socket.id];
-    socket.broadcast.emit("players", Object.keys(game.players).length);
+    game.removePlayer(socket.id);
+    socket.broadcast.emit("players", game.getPlayerCount());
   });
 
 });

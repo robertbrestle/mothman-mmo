@@ -11,8 +11,16 @@ var tickRate = 1000;
 var isStarted = false;
 
 var roundTime = 11;
-var roundTimeMax = 60;
+var roundTimeMax = 11;
 
+function getPlayerCount() {
+  return Object.keys(players).length;
+}
+function removePlayer(id) {
+  if (id == null || typeof players[id] === "undefined")
+    return;
+  delete players[id];
+}
 
 function startGameLoop(myIO) {
   if (!isStarted) {
@@ -20,25 +28,39 @@ function startGameLoop(myIO) {
       io = myIO;
     }
     isStarted = true;
+    roundTime = roundTimeMax;
     gameloop();
   }
 }
 
 function stopGameLoop() {
   isStarted = false;
+  roundTime = roundTimeMax;
+  players = {};
 
-  // TODO: fix this causing desyncs
-
-  //roundTime = roundTimeMax;
-  //io.emit("reset");
-
-  //players = {};
+  setTimeout(function() {
+    io.emit("players", Object.keys(players).length);
+    io.emit("time", "waiting");
+    io.emit("reset");
+  }, 10000);
+  
+  /*
+  io.emit("resetTime", 10);
+  for (let i = 10; i < 0; i--) {
+    console.log(i);
+    setTimeout(function() {
+      io.emit("resetTime", i);
+    }, 1000);
+  }
+  io.emit("players", Object.keys(players).length);
+  io.emit("reset");
+  */
 }
 
 function gameloop() {
   io.fetchSockets()
     .then((sockets) => {
-      if (sockets.length > 0 && isStarted) {
+      if (sockets.length > 0 && Object.keys(players).length > 0 && isStarted) {
         now = Date.now();
         elapsed = now - then;
         if (elapsed > tickRate) {
@@ -46,22 +68,21 @@ function gameloop() {
 
           roundTime--;
 
-          io.emit("time", roundTime);
-          /*
-          collision();
-          movement();
-          if(stageVars.end.roundOver) {
-              roundOver(now);
-          }
-          */
-          if (roundTime < 0) {
+          if (roundTime <= 0) {
             Object.keys(sockets).forEach(key => {
-              let id = players[sockets[key].id];
-              sockets[key].emit("result", players[sockets[key].id] == "mothman" ? "You win!" : "You lose!");
+              let id = sockets[key].id;
+              if (typeof players[id] !== "undefined") {
+                // TODO: change to object; add more data
+                sockets[key].emit("result", players[id] == "mothman" ? "You win!" : "You lose!");
+              }
             });
 
-            stopGameLoop();
+            io.emit("time", "complete");
+
+            return stopGameLoop();
           }
+
+          io.emit("time", roundTime);
         }
         setImmediate(gameloop, tickRate);
       } else {
@@ -88,7 +109,9 @@ function registration(id, intent) {
 }
 
 module.exports = {
-  players,
+  roundTime,
+  getPlayerCount,
+  removePlayer,
   startGameLoop,
   stopGameLoop,
   registration
