@@ -9,6 +9,7 @@ startTime = then;
 var tickRate = 1000;
 
 var isStarted = false;
+var isRoundOver = true;
 
 var roundTime = 11;
 var roundTimeMax = 11;
@@ -23,11 +24,12 @@ function removePlayer(id) {
 }
 
 function startGameLoop(myIO) {
-  if (!isStarted) {
+  if (!isStarted && isRoundOver) {
     if (typeof myIO !== 'undefined') {
       io = myIO;
     }
     isStarted = true;
+    isRoundOver = false;
     roundTime = roundTimeMax;
     gameloop();
   }
@@ -42,6 +44,7 @@ function stopGameLoop() {
     io.emit("players", Object.keys(players).length);
     io.emit("time", "waiting");
     io.emit("reset");
+    isRoundOver = true;
   }, 10000);
   
   /*
@@ -93,19 +96,27 @@ function gameloop() {
 }
 
 function registration(id, intent) {
+  var response = {
+    success: false
+  };
+
+  if (!isRoundOver) {
+    response.message = "Waiting for the next round";
+  }
+  else
   // validate and set intent
   if (intent == null || typeof intent === "undefined" || intents.indexOf(intent) < 0) {
-    io.emit("error", "Invalid selection");
-    return false;
+    response.message = "Invalid intent selection :^)";
   }
   else if (typeof players[id] !== "undefined") {
-    io.emit("error", "You've already selected your intent as " + players[id]);
-    return false;
+    response.message = "You've already selected your intent as " + players[id];
   }
   else {
     players[id] = intent;
-    return true;
+    response.success = true;
   }
+
+  return response;
 }
 
 module.exports = {

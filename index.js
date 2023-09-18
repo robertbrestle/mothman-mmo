@@ -16,7 +16,14 @@ io.on("connection", (socket) => {
   
   socket.on("registration", (intent) => {
     // register player
-    if (game.registration(socket.id, intent)) {
+    let response = game.registration(socket.id, intent);
+
+    if (!response.success) {
+      socket.emit("error", response.message);
+    }
+    else {
+      socket.emit("registrationSuccess", intent);
+
       // attempt to start the game
       game.startGameLoop(io);
       // send updates to clients

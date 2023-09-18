@@ -16,23 +16,25 @@
 
 <div>
     <div id="intent-form">
-        <p>Declare your intent:</p>
-        <button id="intent-human">Human</button>
-        <button id="intent-mothman">Mothman</button>
+        <h2 class="text-center">Declare your intent:</p>
+        <div class="flex">
+            <button id="intent-human">&nbsp;Human&nbsp;</button>
+            <button id="intent-mothman">Mothman</button>
+        </div>
     </div>
-    <div id="intent-selection" style="display:none;">
-        <p>You are a <span id="intent"></span></p>
+    <div id="intent-selection" class="text-center" style="display:none;">
+        <h2>You are a <span id="intent"></span></p>
     </div>
 </div>
 
-<div id="waiting" style="display:none;">
+<div id="waiting" class="text-center" style="display:none;">
     <p>Waiting for other players...</p>
-    <div class="lds-ripple"><div></div><div></div></div>
+    <div class="lds-ripple margin-auto"><div></div><div></div></div>
 </div>
 
-<div id="result" style="display:none;">
+<div id="result" class="text-center" style="display:none;">
     <p></p>
-    <div>The next round will begin in <span id="resetTime"></span> seconds.</div>
+    <div>The next round will begin in <span id="resetTime">10</span> seconds.</div>
 </div>
 
 <p id="error"></p>
@@ -66,18 +68,22 @@
         document.getElementById("intent").textContent = "";
         document.getElementById("waiting").style = "display:none";
         document.getElementById("result").style = "display:none";
+
+        audio.pause();
+        audio.currentTime = 0;
+    });
+    socket.on("registrationSuccess", function(rs) {
+        setIntent(rs);
     });
 
     document.getElementById("intent-human").addEventListener("click", function(e) {
         e.preventDefault();
         socket.emit("registration", "human");
-        setIntent("human");
     });
 
     document.getElementById("intent-mothman").addEventListener("click", function(e) {
         e.preventDefault();
         socket.emit("registration", "mothman");
-        setIntent("mothman");
     });
 
     function setIntent(intent) {
@@ -85,7 +91,7 @@
         document.getElementById("intent-selection").style = "";
         document.getElementById("intent").textContent = intent;
         document.getElementById("waiting").style = "";
-        audio.play();
+        //audio.play();
     }
     
 </script>
