@@ -5,7 +5,7 @@ html, body {
 }
 
 button {
-    border: 3px solid #fff;
+    border: 3px solid #000;
     border-radius: 3px;
     font-size: 2rem;
     background: #424141;
@@ -14,16 +14,25 @@ button {
     cursor: pointer;
 }
 button:hover {
-    color: #121212;
-    background-color: #fff;
+    border-color: #fff;
+}
+#intent-human {
+    background-image: url("/img/human.jpg");
+}
+#intent-mothman {
+    background-image: url("/img/mothman.jpg");
 }
 
+.d-none {
+    display: none;
+}
 .flex {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
 }
-.flex > * {
+.flex > button {
+    width: 160px;
     height: 100px;
 }
 .text-center {

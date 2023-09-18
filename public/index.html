@@ -22,17 +22,17 @@
             <button id="intent-mothman">Mothman</button>
         </div>
     </div>
-    <div id="intent-selection" class="text-center" style="display:none;">
+    <div id="intent-selection" class="text-center d-none">
         <h2>You are a <span id="intent"></span></p>
     </div>
 </div>
 
-<div id="waiting" class="text-center" style="display:none;">
+<div id="waiting" class="text-center d-none">
     <p>Waiting for other players...</p>
     <div class="lds-ripple margin-auto"><div></div><div></div></div>
 </div>
 
-<div id="result" class="text-center" style="display:none;">
+<div id="result" class="text-center d-none">
     <p></p>
     <div>The next round will begin in <span id="resetTime">10</span> seconds.</div>
 </div>
@@ -58,16 +58,16 @@
         document.getElementById("error").textContent = error;
     });
     socket.on("result", function(r) {
-        document.querySelector("#result p").textContent = r;
-        document.getElementById("result").style = "";
-        document.getElementById("waiting").style = "display:none;";
+        document.querySelector("#result p").innerHTML = "<p>" + r.result + "</p><p>Humans: " + r.humans + "</p><p>Mothmen: " + r.mothmen + "</p>";
+        document.getElementById("result").classList.remove("d-none");
+        document.getElementById("waiting").classList.add("d-none");
     });
     socket.on("reset", function() {
-        document.getElementById("intent-form").style = "";
-        document.getElementById("intent-selection").style = "display:none";
+        document.getElementById("intent-form").classList.remove("d-none");
+        document.getElementById("intent-selection").classList.add("d-none");
         document.getElementById("intent").textContent = "";
-        document.getElementById("waiting").style = "display:none";
-        document.getElementById("result").style = "display:none";
+        document.getElementById("waiting").classList.add("d-none");
+        document.getElementById("result").classList.add("d-none");
 
         audio.pause();
         audio.currentTime = 0;
@@ -87,11 +87,11 @@
     });
 
     function setIntent(intent) {
-        document.getElementById("intent-form").style = "display:none";
-        document.getElementById("intent-selection").style = "";
+        document.getElementById("intent-form").classList.add("d-none");
+        document.getElementById("intent-selection").classList.remove("d-none");
         document.getElementById("intent").textContent = intent;
-        document.getElementById("waiting").style = "";
-        //audio.play();
+        document.getElementById("waiting").classList.remove("d-none");
+        audio.play();
     }
     
 </script>

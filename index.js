@@ -29,8 +29,8 @@ io.on("connection", (socket) => {
       // send updates to clients
       socket.emit("players", game.getPlayerCount()); // send to player
       socket.broadcast.emit("players", game.getPlayerCount()); // send to room
-      socket.emit("time", Object.keys(game.roundTime).length); // send to players
-      socket.broadcast.emit("time", Object.keys(game.roundTime).length); // send to room
+      socket.emit("time", game.getRoundTime()); // send to players
+      socket.broadcast.emit("time", game.getRoundTime()); // send to room
     }
   });
 

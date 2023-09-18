@@ -9,7 +9,7 @@ startTime = then;
 var tickRate = 1000;
 
 var isStarted = false;
-var isRoundOver = true;
+var isRoundOver = false;
 
 var roundTime = 11;
 var roundTimeMax = 11;
@@ -22,9 +22,12 @@ function removePlayer(id) {
     return;
   delete players[id];
 }
+function getRoundTime() {
+  return roundTime;
+}
 
 function startGameLoop(myIO) {
-  if (!isStarted && isRoundOver) {
+  if (!isStarted && !isRoundOver) {
     if (typeof myIO !== 'undefined') {
       io = myIO;
     }
@@ -36,15 +39,16 @@ function startGameLoop(myIO) {
 }
 
 function stopGameLoop() {
-  isStarted = false;
   roundTime = roundTimeMax;
   players = {};
+  isStarted = false;
+  isRoundOver = true;
 
   setTimeout(function() {
     io.emit("players", Object.keys(players).length);
     io.emit("time", "waiting");
     io.emit("reset");
-    isRoundOver = true;
+    isRoundOver = false;
   }, 10000);
   
   /*
@@ -72,11 +76,38 @@ function gameloop() {
           roundTime--;
 
           if (roundTime <= 0) {
+
+            // count results
+            let humans = 0;
+            let mothmen = 0;
+            Object.values(players).forEach(val => {
+              if (val == "human") {
+                humans++;
+              }else if (val == "mothman") {
+                mothmen++;
+              }
+            });
+
+            // determine winner
+            let winner = null;
+            if (mothmen == 0) {
+              winner = "The humans win!";
+            }else if ((humans / mothmen) >= 2) {
+              winner = "The humans win!";
+            }else {
+              winner = "The Mothmen win!";
+            }
+
+            // send messages to players
             Object.keys(sockets).forEach(key => {
               let id = sockets[key].id;
               if (typeof players[id] !== "undefined") {
-                // TODO: change to object; add more data
-                sockets[key].emit("result", players[id] == "mothman" ? "You win!" : "You lose!");
+                sockets[key].emit("result", {
+                  //"result": (players[id] == "mothman" ? "You win!" : "You lose!"),
+                  "result": winner,
+                  "humans": humans,
+                  "mothmen": mothmen
+                });
               }
             });
 
@@ -100,7 +131,7 @@ function registration(id, intent) {
     success: false
   };
 
-  if (!isRoundOver) {
+  if (isRoundOver) {
     response.message = "Waiting for the next round";
   }
   else
@@ -120,7 +151,7 @@ function registration(id, intent) {
 }
 
 module.exports = {
-  roundTime,
+  getRoundTime,
   getPlayerCount,
   removePlayer,
   startGameLoop,
